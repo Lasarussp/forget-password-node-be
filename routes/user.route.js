@@ -18,11 +18,11 @@ const options = {
   max: 9999,
   integer: true,
 };
-
-//Signup router
+//SignUp Router
 router.post("/signup", async function (request, response) {
   try {
     const { username, password, email } = request.body;
+
     const userFromDB = await getUserByName(username);
     const emailFromDB = await getUserByEmail(email);
     console.log(userFromDB);
@@ -32,7 +32,7 @@ router.post("/signup", async function (request, response) {
     } else if (password.length <= 6) {
       response
         .status(400)
-        .send({ message: "Password must be atleast 6 characters" });
+        .send({ message: "password must be alteast 6 characters" });
     } else if (emailFromDB) {
       response.status(400).send({ message: "Email already exists" });
     } else {
@@ -49,11 +49,13 @@ router.post("/signup", async function (request, response) {
   }
 });
 
-//Login route
+//Login Router
 router.post("/login", async function (request, response) {
   try {
     const { username, password } = request.body;
+
     const userFromDB = await getUserByName(username);
+
     console.log(userFromDB);
     if (!userFromDB) {
       response.status(401).send({ message: "Invalid Credential" });
@@ -63,7 +65,7 @@ router.post("/login", async function (request, response) {
       console.log(isPasswordMatch);
       if (isPasswordMatch) {
         const token = jwt.sign({ id: userFromDB._id }, process.env.SECRET_KEY);
-        response.send.send({
+        response.send({
           message: "Successful Login",
           token: token,
           username: userFromDB,
@@ -78,7 +80,7 @@ router.post("/login", async function (request, response) {
   }
 });
 
-//Verification mail send from nodemailer
+//Verification Mail send
 router.post("/sendmail", async function (request, response) {
   try {
     const { username, password, email } = request.body;
@@ -94,7 +96,7 @@ router.post("/sendmail", async function (request, response) {
           { email: request.body.email },
           { $set: { rnum: randomnum } }
         );
-      var transporter = nodemailer.createTransporter({
+      var transporter = nodemailer.createTransport({
         service: "gmail",
         host: "smtp.gmail.com",
         secure: false,
@@ -111,7 +113,7 @@ router.post("/sendmail", async function (request, response) {
         text: `${randomnum}`,
       };
 
-      await transporter.senMail(mailOptions, function (error, info) {
+      await transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
           console.log(error);
           response.json({
@@ -130,36 +132,36 @@ router.post("/sendmail", async function (request, response) {
   }
 });
 
-router.post("/verify", async (request, response) => {
+router.post("/verify", async (req, res) => {
   try {
     const user = await client
       .db("resetPassword")
       .collection("users")
-      .findOne({ email: request.body.email });
-    if (user.rnum === request.body.vercode) {
-      response.status(200).json(user);
+      .findOne({ email: req.body.email });
+    if (user.rnum === req.body.vercode) {
+      res.status(200).json(user);
     } else {
-      response.status(400).json({ message: "Invalid Verification Code" });
+      res.status(400).json({ message: "Invalid Verification Code" });
     }
   } catch (error) {
     console.log(error);
   }
 });
 
-router.post("/changepassword/:id/", async function (request, response) {
+router.post("/changepassword/:id", async function (request, response) {
   try {
     console.log(request.params.id);
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(request.body.password, salt);
-    request.bodypassword = hash;
+    request.body.password = hash;
     await client
       .db("resetPassword")
       .collection("users")
-      .updateOne({ email: "Password.params.id" }, { $set: request.body });
-    response.json({ message: "Password updated successully 😉" });
+      .updateOne({ email: request.params.id }, { $set: request.body });
+
+    response.json({ message: "Password updated successfully" });
   } catch (error) {
     console.log(error);
   }
 });
-
 export default router;
