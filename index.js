@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 import UserRouter from "./routes/user.route.js";
 
+//env setup
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -29,6 +30,7 @@ app.get("/", function (request, response) {
   response.send("🙋‍♂️, 🌏 🎊✨🤩 <h1>Welcome to Password Reset App<h1>");
 });
 
+//Strat port number
 app.listen(PORT, () => console.log(`The server started in: ${PORT} ✨✨`));
 
 export { client };

@@ -18,6 +18,7 @@ const options = {
   max: 9999,
   integer: true,
 };
+
 //SignUp Router
 router.post("/signup", async function (request, response) {
   try {
@@ -80,7 +81,7 @@ router.post("/login", async function (request, response) {
   }
 });
 
-//Verification Mail send
+//Verification Mail send by user
 router.post("/sendmail", async function (request, response) {
   try {
     const { username, password, email } = request.body;
